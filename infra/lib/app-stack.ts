@@ -38,6 +38,7 @@ export class AppStack extends cdk.Stack {
                     taskImageOptions: {
                         image: ecs.ContainerImage.fromEcrRepository(
                             props.repository,
+                            "1.0-SNAPSHOT",
                         ),
                         containerPort: 8080,
                         enableLogging: true,

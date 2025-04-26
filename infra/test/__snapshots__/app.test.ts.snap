@@ -304,7 +304,7 @@ exports[`AppStack Test Snapshot Test 1`] = `
                   {
                     "Fn::ImportValue": "EcrTestStack:ExportsOutputRefEcrRepository4D7B3EE140E01346",
                   },
-                  ":latest",
+                  ":1.0-SNAPSHOT",
                 ],
               ],
             },
