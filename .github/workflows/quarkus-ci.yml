@@ -1,0 +1,38 @@
+name: Quarkus CI
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'quarkus-app/**'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'quarkus-app/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./quarkus-app
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Grant execute permission for Gradle
+        run: chmod +x ./gradlew
+
+      - name: Build and run tests
+        run: ./gradlew build
+
+      - name: Run testNative
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          ./gradlew testNative

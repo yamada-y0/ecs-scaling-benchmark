@@ -1,0 +1,48 @@
+name: Quarkus Deploy
+on:
+  workflow_dispatch:
+
+env:
+  AWS_ACCOUNT_ID: 203367944550
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./quarkus-app
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Grant execute permission for Gradle
+        run: chmod +x ./gradlew
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/GitHubActionsRole
+          aws-region: ap-northeast-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push Docker image
+        env:
+          QUARKUS_CONTAINER_IMAGE_REGISTRY: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-1.amazonaws.com
+          QUARKUS_PACKAGE_JAR_ENABLED: false
+        run: |
+          ./gradlew imagePush -Dquarkus.native.enabled=true -Dquarkus.native.container-build=true -Dquarkus.container-image.push=true
