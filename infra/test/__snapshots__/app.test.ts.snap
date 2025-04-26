@@ -1,0 +1,467 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`AppStack Test Snapshot Test 1`] = `
+{
+  "Outputs": {
+    "FargateServiceLoadBalancerDNS9433D5F6": {
+      "Value": {
+        "Fn::GetAtt": [
+          "FargateServiceLBB353E155",
+          "DNSName",
+        ],
+      },
+    },
+    "FargateServiceServiceURL47701F45": {
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "http://",
+            {
+              "Fn::GetAtt": [
+                "FargateServiceLBB353E155",
+                "DNSName",
+              ],
+            },
+          ],
+        ],
+      },
+    },
+  },
+  "Parameters": {
+    "BootstrapVersion": {
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+  },
+  "Resources": {
+    "EcsCluster97242B84": {
+      "Properties": {
+        "ClusterName": "quarkus-cluster",
+      },
+      "Type": "AWS::ECS::Cluster",
+    },
+    "FargateServiceECC8084D": {
+      "DependsOn": [
+        "FargateServiceLBPublicListenerECSGroupBE57E081",
+        "FargateServiceLBPublicListener4B4929CA",
+        "FargateServiceTaskDefTaskRole8CDCF85E",
+      ],
+      "Properties": {
+        "Cluster": {
+          "Ref": "EcsCluster97242B84",
+        },
+        "DeploymentConfiguration": {
+          "Alarms": {
+            "AlarmNames": [],
+            "Enable": false,
+            "Rollback": false,
+          },
+          "MaximumPercent": 200,
+          "MinimumHealthyPercent": 50,
+        },
+        "DesiredCount": 1,
+        "EnableECSManagedTags": false,
+        "HealthCheckGracePeriodSeconds": 60,
+        "LaunchType": "FARGATE",
+        "LoadBalancers": [
+          {
+            "ContainerName": "web",
+            "ContainerPort": 8080,
+            "TargetGroupArn": {
+              "Ref": "FargateServiceLBPublicListenerECSGroupBE57E081",
+            },
+          },
+        ],
+        "NetworkConfiguration": {
+          "AwsvpcConfiguration": {
+            "AssignPublicIp": "DISABLED",
+            "SecurityGroups": [
+              {
+                "Fn::GetAtt": [
+                  "FargateServiceSecurityGroup262B61DD",
+                  "GroupId",
+                ],
+              },
+            ],
+            "Subnets": [
+              {
+                "Fn::ImportValue": "NetworkTestStack:ExportsOutputRefVPCIsolatedSubnet1SubnetEBD00FC6298E81EF",
+              },
+              {
+                "Fn::ImportValue": "NetworkTestStack:ExportsOutputRefVPCIsolatedSubnet2Subnet4B1C8CAAD8B83B81",
+              },
+            ],
+          },
+        },
+        "TaskDefinition": {
+          "Ref": "FargateServiceTaskDef940E3A80",
+        },
+      },
+      "Type": "AWS::ECS::Service",
+    },
+    "FargateServiceLBB353E155": {
+      "Properties": {
+        "LoadBalancerAttributes": [
+          {
+            "Key": "deletion_protection.enabled",
+            "Value": "false",
+          },
+        ],
+        "Scheme": "internal",
+        "SecurityGroups": [
+          {
+            "Fn::GetAtt": [
+              "FargateServiceLBSecurityGroup5F444C78",
+              "GroupId",
+            ],
+          },
+        ],
+        "Subnets": [
+          {
+            "Fn::ImportValue": "NetworkTestStack:ExportsOutputRefVPCIsolatedSubnet1SubnetEBD00FC6298E81EF",
+          },
+          {
+            "Fn::ImportValue": "NetworkTestStack:ExportsOutputRefVPCIsolatedSubnet2Subnet4B1C8CAAD8B83B81",
+          },
+        ],
+        "Type": "application",
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+    },
+    "FargateServiceLBPublicListener4B4929CA": {
+      "Properties": {
+        "DefaultActions": [
+          {
+            "TargetGroupArn": {
+              "Ref": "FargateServiceLBPublicListenerECSGroupBE57E081",
+            },
+            "Type": "forward",
+          },
+        ],
+        "LoadBalancerArn": {
+          "Ref": "FargateServiceLBB353E155",
+        },
+        "Port": 80,
+        "Protocol": "HTTP",
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::Listener",
+    },
+    "FargateServiceLBPublicListenerECSGroupBE57E081": {
+      "Properties": {
+        "HealthCheckPath": "/health",
+        "Matcher": {
+          "HttpCode": "200",
+        },
+        "Port": 80,
+        "Protocol": "HTTP",
+        "TargetGroupAttributes": [
+          {
+            "Key": "stickiness.enabled",
+            "Value": "false",
+          },
+        ],
+        "TargetType": "ip",
+        "VpcId": {
+          "Fn::ImportValue": "NetworkTestStack:ExportsOutputRefVPCB9E5F0B4BD23A326",
+        },
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+    },
+    "FargateServiceLBSecurityGroup5F444C78": {
+      "Properties": {
+        "GroupDescription": "Automatically created Security Group for ELB AppTestStackFargateServiceLB3EEA14BA",
+        "SecurityGroupIngress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow from anyone on port 80",
+            "FromPort": 80,
+            "IpProtocol": "tcp",
+            "ToPort": 80,
+          },
+        ],
+        "VpcId": {
+          "Fn::ImportValue": "NetworkTestStack:ExportsOutputRefVPCB9E5F0B4BD23A326",
+        },
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+    },
+    "FargateServiceLBSecurityGrouptoAppTestStackFargateServiceSecurityGroup883A707080801FA66932": {
+      "Properties": {
+        "Description": "Load balancer to target",
+        "DestinationSecurityGroupId": {
+          "Fn::GetAtt": [
+            "FargateServiceSecurityGroup262B61DD",
+            "GroupId",
+          ],
+        },
+        "FromPort": 8080,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "FargateServiceLBSecurityGroup5F444C78",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "ToPort": 8080,
+      },
+      "Type": "AWS::EC2::SecurityGroupEgress",
+    },
+    "FargateServiceSecurityGroup262B61DD": {
+      "DependsOn": [
+        "FargateServiceTaskDefTaskRole8CDCF85E",
+      ],
+      "Properties": {
+        "GroupDescription": "AppTestStack/FargateService/Service/SecurityGroup",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow all outbound traffic by default",
+            "IpProtocol": "-1",
+          },
+        ],
+        "VpcId": {
+          "Fn::ImportValue": "NetworkTestStack:ExportsOutputRefVPCB9E5F0B4BD23A326",
+        },
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+    },
+    "FargateServiceSecurityGroupfromAppTestStackFargateServiceLBSecurityGroupDD23365480801DD6E28B": {
+      "DependsOn": [
+        "FargateServiceTaskDefTaskRole8CDCF85E",
+      ],
+      "Properties": {
+        "Description": "Load balancer to target",
+        "FromPort": 8080,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "FargateServiceSecurityGroup262B61DD",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "SourceSecurityGroupId": {
+          "Fn::GetAtt": [
+            "FargateServiceLBSecurityGroup5F444C78",
+            "GroupId",
+          ],
+        },
+        "ToPort": 8080,
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress",
+    },
+    "FargateServiceTaskDef940E3A80": {
+      "Properties": {
+        "ContainerDefinitions": [
+          {
+            "Essential": true,
+            "HealthCheck": {
+              "Command": [
+                "CMD-SHELL",
+                "curl -f http://localhost:8080/health || exit 1",
+              ],
+              "Interval": 30,
+              "Retries": 3,
+              "Timeout": 5,
+            },
+            "Image": {
+              "Fn::Join": [
+                "",
+                [
+                  {
+                    "Fn::Select": [
+                      4,
+                      {
+                        "Fn::Split": [
+                          ":",
+                          {
+                            "Fn::ImportValue": "EcrTestStack:ExportsOutputFnGetAttEcrRepository4D7B3EE1Arn21868DE8",
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  ".dkr.ecr.",
+                  {
+                    "Fn::Select": [
+                      3,
+                      {
+                        "Fn::Split": [
+                          ":",
+                          {
+                            "Fn::ImportValue": "EcrTestStack:ExportsOutputFnGetAttEcrRepository4D7B3EE1Arn21868DE8",
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                  ".",
+                  {
+                    "Ref": "AWS::URLSuffix",
+                  },
+                  "/",
+                  {
+                    "Fn::ImportValue": "EcrTestStack:ExportsOutputRefEcrRepository4D7B3EE140E01346",
+                  },
+                  ":latest",
+                ],
+              ],
+            },
+            "LogConfiguration": {
+              "LogDriver": "awslogs",
+              "Options": {
+                "awslogs-group": {
+                  "Ref": "FargateServiceTaskDefwebLogGroup71FAF541",
+                },
+                "awslogs-region": {
+                  "Ref": "AWS::Region",
+                },
+                "awslogs-stream-prefix": "FargateService",
+              },
+            },
+            "Name": "web",
+            "PortMappings": [
+              {
+                "ContainerPort": 8080,
+                "Protocol": "tcp",
+              },
+            ],
+          },
+        ],
+        "Cpu": "256",
+        "ExecutionRoleArn": {
+          "Fn::GetAtt": [
+            "FargateServiceTaskDefExecutionRole9194820E",
+            "Arn",
+          ],
+        },
+        "Family": "AppTestStackFargateServiceTaskDefE42ECBF3",
+        "Memory": "512",
+        "NetworkMode": "awsvpc",
+        "RequiresCompatibilities": [
+          "FARGATE",
+        ],
+        "TaskRoleArn": {
+          "Fn::GetAtt": [
+            "FargateServiceTaskDefTaskRole8CDCF85E",
+            "Arn",
+          ],
+        },
+      },
+      "Type": "AWS::ECS::TaskDefinition",
+    },
+    "FargateServiceTaskDefExecutionRole9194820E": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ecs-tasks.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "FargateServiceTaskDefExecutionRoleDefaultPolicy827E7CA2": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "ecr:BatchCheckLayerAvailability",
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:BatchGetImage",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::ImportValue": "EcrTestStack:ExportsOutputFnGetAttEcrRepository4D7B3EE1Arn21868DE8",
+              },
+            },
+            {
+              "Action": "ecr:GetAuthorizationToken",
+              "Effect": "Allow",
+              "Resource": "*",
+            },
+            {
+              "Action": [
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "FargateServiceTaskDefwebLogGroup71FAF541",
+                  "Arn",
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "FargateServiceTaskDefExecutionRoleDefaultPolicy827E7CA2",
+        "Roles": [
+          {
+            "Ref": "FargateServiceTaskDefExecutionRole9194820E",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "FargateServiceTaskDefTaskRole8CDCF85E": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ecs-tasks.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "FargateServiceTaskDefwebLogGroup71FAF541": {
+      "DeletionPolicy": "Retain",
+      "Type": "AWS::Logs::LogGroup",
+      "UpdateReplacePolicy": "Retain",
+    },
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                  ],
+                  {
+                    "Ref": "BootstrapVersion",
+                  },
+                ],
+              },
+            ],
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+        },
+      ],
+    },
+  },
+}
+`;
