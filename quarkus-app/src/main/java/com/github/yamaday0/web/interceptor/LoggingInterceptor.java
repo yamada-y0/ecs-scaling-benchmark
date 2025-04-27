@@ -1,4 +1,4 @@
-package com.github.yamaday0.web.intercepter;
+package com.github.yamaday0.web.interceptor;
 
 import jakarta.inject.Inject;
 import jakarta.interceptor.AroundInvoke;
