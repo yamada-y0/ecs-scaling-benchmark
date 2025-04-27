@@ -1,4 +1,4 @@
-package com.github.yamaday0.web.intercepter;
+package com.github.yamaday0.web.interceptor;
 
 import jakarta.interceptor.InterceptorBinding;
 
@@ -9,6 +9,6 @@ import java.lang.annotation.Target;
 
 @InterceptorBinding
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE , ElementType.METHOD, ElementType.CONSTRUCTOR})
+@Target({ElementType.TYPE, ElementType.METHOD, ElementType.CONSTRUCTOR})
 public @interface Logged {
 }

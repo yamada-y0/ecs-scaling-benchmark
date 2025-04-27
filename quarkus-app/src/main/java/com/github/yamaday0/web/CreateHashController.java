@@ -1,7 +1,7 @@
 package com.github.yamaday0.web;
 
 import com.github.yamaday0.application.CreateHashUseCase;
-import com.github.yamaday0.web.intercepter.Logged;
+import com.github.yamaday0.web.interceptor.Logged;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
