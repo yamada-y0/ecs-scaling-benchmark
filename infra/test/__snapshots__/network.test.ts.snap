@@ -8,8 +8,8 @@ exports[`NetworkStack Test Snapshot Test 1`] = `
       "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
       "Type": "AWS::SSM::Parameter::Value<String>",
     },
-    "SsmParameterValueawsserviceamiamazonlinuxlatestamznamihvmx8664gp2C96584B6F00A464EAD1953AFF4B05118Parameter": {
-      "Default": "/aws/service/ami-amazon-linux-latest/amzn-ami-hvm-x86_64-gp2",
+    "SsmParameterValueawsserviceamiamazonlinuxlatestal2023amikernel61x8664C96584B6F00A464EAD1953AFF4B05118Parameter": {
+      "Default": "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-6.1-x86_64",
       "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
     },
   },
@@ -662,6 +662,88 @@ exports[`NetworkStack Test Snapshot Test 1`] = `
       },
       "Type": "AWS::EC2::SecurityGroup",
     },
+    "SecretsManagerEndpoint5E83C66B": {
+      "Properties": {
+        "PrivateDnsEnabled": true,
+        "SecurityGroupIds": [
+          {
+            "Fn::GetAtt": [
+              "SecretsManagerEndpointSecurityGroupEA7D8B27",
+              "GroupId",
+            ],
+          },
+        ],
+        "ServiceName": {
+          "Fn::Join": [
+            "",
+            [
+              "com.amazonaws.",
+              {
+                "Ref": "AWS::Region",
+              },
+              ".secretsmanager",
+            ],
+          ],
+        },
+        "SubnetIds": [
+          {
+            "Ref": "VPCIsolatedSubnet1SubnetEBD00FC6",
+          },
+          {
+            "Ref": "VPCIsolatedSubnet2Subnet4B1C8CAA",
+          },
+        ],
+        "VpcEndpointType": "Interface",
+        "VpcId": {
+          "Ref": "VPCB9E5F0B4",
+        },
+      },
+      "Type": "AWS::EC2::VPCEndpoint",
+    },
+    "SecretsManagerEndpointSecurityGroupEA7D8B27": {
+      "Properties": {
+        "GroupDescription": "NetworkTestStack/SecretsManagerEndpoint/SecurityGroup",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow all outbound traffic by default",
+            "IpProtocol": "-1",
+          },
+        ],
+        "SecurityGroupIngress": [
+          {
+            "CidrIp": {
+              "Fn::GetAtt": [
+                "VPCB9E5F0B4",
+                "CidrBlock",
+              ],
+            },
+            "Description": {
+              "Fn::Join": [
+                "",
+                [
+                  "from ",
+                  {
+                    "Fn::GetAtt": [
+                      "VPCB9E5F0B4",
+                      "CidrBlock",
+                    ],
+                  },
+                  ":443",
+                ],
+              ],
+            },
+            "FromPort": 443,
+            "IpProtocol": "tcp",
+            "ToPort": 443,
+          },
+        ],
+        "VpcId": {
+          "Ref": "VPCB9E5F0B4",
+        },
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+    },
     "VPCB9E5F0B4": {
       "Properties": {
         "CidrBlock": "10.0.0.0/16",
@@ -809,7 +891,7 @@ exports[`NetworkStack Test Snapshot Test 1`] = `
           "Ref": "bastionInstanceProfileBF7A08EB",
         },
         "ImageId": {
-          "Ref": "SsmParameterValueawsserviceamiamazonlinuxlatestamznamihvmx8664gp2C96584B6F00A464EAD1953AFF4B05118Parameter",
+          "Ref": "SsmParameterValueawsserviceamiamazonlinuxlatestal2023amikernel61x8664C96584B6F00A464EAD1953AFF4B05118Parameter",
         },
         "InstanceType": "t2.micro",
         "SecurityGroupIds": [
@@ -841,11 +923,11 @@ aws s3 cp ",
                   "Fn::Sub": "s3://cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}/042f8c863f787eec61e76b73f3f394082bf48ea9610304651deb9956776fc2cc.rpm",
                 },
                 " /tmp/k6.rpm
-sudo -u ssm-user aws s3 cp ",
+sudo aws s3 cp ",
                 {
-                  "Fn::Sub": "s3://cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}/c7b0e311eed80d2b63956d23b6634f4fdc0b131578bd673098298ceecdaf1342.js",
+                  "Fn::Sub": "s3://cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}/9d305c3ee45da26744044e8fceda266c41be651c565369d4f5fd94fc85ee0167.js",
                 },
-                " ~/load-test.js
+                " /home/ssm-user/load-test.js
 sudo yum install -y /tmp/k6.rpm",
               ],
             ],

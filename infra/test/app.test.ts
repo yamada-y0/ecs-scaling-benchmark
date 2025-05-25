@@ -3,6 +3,7 @@ import { Template } from "aws-cdk-lib/assertions";
 import * as App from "../lib/app-stack";
 import * as Network from "../lib/network-stack";
 import * as Ecr from "../lib/ecr-stack";
+import { RdsStack } from "../lib/rds-stack";
 
 describe("AppStack Test", () => {
     test("Snapshot Test", () => {
@@ -12,10 +13,15 @@ describe("AppStack Test", () => {
         const ecrStack = new Ecr.EcrStack(app, "EcrTestStack", {
             appName: "quarkus-app",
         });
+        const rdsStack = new RdsStack(app, "RdsTestStack", {
+            vpc: networkStack.vpc,
+        });
+
         const appStack = new App.AppStack(app, "AppTestStack", {
             appName: "quarkus",
             vpc: networkStack.vpc,
             repository: ecrStack.repository,
+            secret: rdsStack.secret,
         });
 
         // THEN
@@ -30,10 +36,14 @@ describe("AppStack Test", () => {
         const ecrStack = new Ecr.EcrStack(app, "EcrTestStack", {
             appName: "quarkus-app",
         });
+        const rdsStack = new RdsStack(app, "RdsTestStack", {
+            vpc: networkStack.vpc,
+        });
         const appStack = new App.AppStack(app, "AppTestStack", {
             appName: "quarkus",
             vpc: networkStack.vpc,
             repository: ecrStack.repository,
+            secret: rdsStack.secret,
         });
 
         // THEN

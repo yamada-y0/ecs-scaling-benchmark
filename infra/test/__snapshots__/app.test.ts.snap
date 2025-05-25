@@ -400,9 +400,81 @@ exports[`AppStack Test Snapshot Test 1`] = `
                 "Protocol": "tcp",
               },
             ],
+            "Secrets": [
+              {
+                "Name": "DB_PASSWORD",
+                "ValueFrom": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::ImportValue": "RdsTestStack:ExportsOutputRefDatabaseSecretAttachmentE5D1B020633AEB73",
+                      },
+                      ":password::",
+                    ],
+                  ],
+                },
+              },
+              {
+                "Name": "DB_USERNAME",
+                "ValueFrom": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::ImportValue": "RdsTestStack:ExportsOutputRefDatabaseSecretAttachmentE5D1B020633AEB73",
+                      },
+                      ":username::",
+                    ],
+                  ],
+                },
+              },
+              {
+                "Name": "DB_HOST",
+                "ValueFrom": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::ImportValue": "RdsTestStack:ExportsOutputRefDatabaseSecretAttachmentE5D1B020633AEB73",
+                      },
+                      ":host::",
+                    ],
+                  ],
+                },
+              },
+              {
+                "Name": "DB_PORT",
+                "ValueFrom": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::ImportValue": "RdsTestStack:ExportsOutputRefDatabaseSecretAttachmentE5D1B020633AEB73",
+                      },
+                      ":port::",
+                    ],
+                  ],
+                },
+              },
+              {
+                "Name": "DB_NAME",
+                "ValueFrom": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      {
+                        "Fn::ImportValue": "RdsTestStack:ExportsOutputRefDatabaseSecretAttachmentE5D1B020633AEB73",
+                      },
+                      ":dbname::",
+                    ],
+                  ],
+                },
+              },
+            ],
           },
         ],
-        "Cpu": "256",
+        "Cpu": "1024",
         "ExecutionRoleArn": {
           "Fn::GetAtt": [
             "FargateServiceTaskDefExecutionRole9194820E",
@@ -410,7 +482,7 @@ exports[`AppStack Test Snapshot Test 1`] = `
           ],
         },
         "Family": "AppTestStackFargateServiceTaskDefE42ECBF3",
-        "Memory": "512",
+        "Memory": "2048",
         "NetworkMode": "awsvpc",
         "RequiresCompatibilities": [
           "FARGATE",
@@ -472,6 +544,16 @@ exports[`AppStack Test Snapshot Test 1`] = `
                   "FargateServiceTaskDefwebLogGroup71FAF541",
                   "Arn",
                 ],
+              },
+            },
+            {
+              "Action": [
+                "secretsmanager:GetSecretValue",
+                "secretsmanager:DescribeSecret",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::ImportValue": "RdsTestStack:ExportsOutputRefDatabaseSecretAttachmentE5D1B020633AEB73",
               },
             },
           ],

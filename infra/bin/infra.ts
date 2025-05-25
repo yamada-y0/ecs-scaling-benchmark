@@ -20,7 +20,7 @@ const rds = new RdsStack(app, "RdsStack", {
     vpc: network.vpc,
 });
 
-new AppStack(app, "QuarkusAppStack", {
+new AppStack(app, "QuarkusNativeAppStack", {
     appName: "quarkus-native",
     vpc: network.vpc,
     repository: quarkusNativeEcr.repository,
