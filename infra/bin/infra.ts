@@ -16,6 +16,10 @@ const quarkusNativeEcr = new EcrStack(app, "QuarkusNativeEcrStack", {
     appName: "quarkus-native",
 });
 
+const springEcr = new EcrStack(app, "SpringEcrStack", {
+    appName: "spring",
+});
+
 const rds = new RdsStack(app, "RdsStack", {
     vpc: network.vpc,
 });
@@ -24,5 +28,12 @@ new AppStack(app, "QuarkusNativeAppStack", {
     appName: "quarkus-native",
     vpc: network.vpc,
     repository: quarkusNativeEcr.repository,
+    secret: rds.secret,
+});
+
+new AppStack(app, "SpringAppStack", {
+    appName: "spring",
+    vpc: network.vpc,
+    repository: springEcr.repository,
     secret: rds.secret,
 });
