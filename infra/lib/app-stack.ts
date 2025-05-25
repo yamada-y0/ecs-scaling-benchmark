@@ -31,7 +31,7 @@ export class AppStack extends cdk.Stack {
                 "FargateService",
                 {
                     cluster: cluster,
-                    cpu: 256,
+                    cpu: 1024,
                     desiredCount: 1,
                     healthCheck: {
                         command: [
@@ -48,7 +48,7 @@ export class AppStack extends cdk.Stack {
                         enableLogging: true,
                         secrets: this.rdsSecrets(props.secret),
                     },
-                    memoryLimitMiB: 512,
+                    memoryLimitMiB: 2048,
                     publicLoadBalancer: false,
                 },
             );
