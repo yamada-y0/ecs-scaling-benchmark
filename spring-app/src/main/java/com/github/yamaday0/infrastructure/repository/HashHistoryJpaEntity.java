@@ -17,7 +17,6 @@ public class HashHistoryJpaEntity {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private BigInteger id;
     private String hash;
-    @Lob
     private byte[] salt;
     private int iterations;
     private LocalDateTime createDateTime;
