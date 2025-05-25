@@ -16,6 +16,10 @@ const quarkusNativeEcr = new EcrStack(app, "QuarkusNativeEcrStack", {
     appName: "quarkus-native",
 });
 
+const quarkusJvmEcr = new EcrStack(app, "QuarkusJvmEcrStack", {
+    appName: "quarkus-jvm",
+});
+
 const springEcr = new EcrStack(app, "SpringEcrStack", {
     appName: "spring",
 });
@@ -28,6 +32,13 @@ new AppStack(app, "QuarkusNativeAppStack", {
     appName: "quarkus-native",
     vpc: network.vpc,
     repository: quarkusNativeEcr.repository,
+    secret: rds.secret,
+});
+
+new AppStack(app, "QuarkusJvmAppStack", {
+    appName: "quarkus-jvm",
+    vpc: network.vpc,
+    repository: quarkusJvmEcr.repository,
     secret: rds.secret,
 });
 
