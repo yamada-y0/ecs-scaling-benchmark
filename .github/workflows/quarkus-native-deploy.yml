@@ -1,4 +1,4 @@
-name: Quarkus Deploy
+name: Quarkus Native Deploy
 on:
   workflow_dispatch:
 
