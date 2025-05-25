@@ -45,6 +45,6 @@ jobs:
           QUARKUS_CONTAINER_IMAGE_REGISTRY: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-1.amazonaws.com
           QUARKUS_CONTAINER_IMAGE_GROUP: ""
           QUARKUS_CONTAINER_IMAGE_PUSH: true
-          QUARKUS_CONTAINER_IMAGE_NAME: quarkus-native-app
+          QUARKUS_CONTAINER_IMAGE_NAME: quarkus-jvm-app
         run: |
           ./gradlew imagePush
