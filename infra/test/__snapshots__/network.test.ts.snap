@@ -56,6 +56,63 @@ exports[`NetworkStack Test Snapshot Test 1`] = `
       },
       "Type": "AWS::IAM::Role",
     },
+    "BastionRoleDefaultPolicy2C10035E": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "s3:GetObject*",
+                "s3:GetBucket*",
+                "s3:List*",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::",
+                      {
+                        "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+                      },
+                    ],
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":s3:::",
+                      {
+                        "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
+                      },
+                      "/*",
+                    ],
+                  ],
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "BastionRoleDefaultPolicy2C10035E",
+        "Roles": [
+          {
+            "Ref": "BastionRole201D3308",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
     "CloudWatchLogsEndpointF23EDC4F": {
       "Properties": {
         "PrivateDnsEnabled": true,
@@ -736,6 +793,7 @@ exports[`NetworkStack Test Snapshot Test 1`] = `
     },
     "bastion34F27305": {
       "DependsOn": [
+        "BastionRoleDefaultPolicy2C10035E",
         "BastionRole201D3308",
       ],
       "Properties": {
@@ -772,7 +830,26 @@ exports[`NetworkStack Test Snapshot Test 1`] = `
           },
         ],
         "UserData": {
-          "Fn::Base64": "#!/bin/bash",
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#!/bin/bash
+sudo yum update -y
+aws s3 cp ",
+                {
+                  "Fn::Sub": "s3://cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}/042f8c863f787eec61e76b73f3f394082bf48ea9610304651deb9956776fc2cc.rpm",
+                },
+                " /tmp/k6.rpm
+sudo -u ssm-user aws s3 cp ",
+                {
+                  "Fn::Sub": "s3://cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}/c7b0e311eed80d2b63956d23b6634f4fdc0b131578bd673098298ceecdaf1342.js",
+                },
+                " ~/load-test.js
+sudo yum install -y /tmp/k6.rpm",
+              ],
+            ],
+          },
         },
       },
       "Type": "AWS::EC2::Instance",

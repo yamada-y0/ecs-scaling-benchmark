@@ -2,6 +2,8 @@ import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as iam from "aws-cdk-lib/aws-iam";
+import * as s3assets from "aws-cdk-lib/aws-s3-assets";
+import * as path from "path";
 
 export class NetworkStack extends cdk.Stack {
     public readonly vpc: ec2.IVpc;
@@ -20,9 +22,9 @@ export class NetworkStack extends cdk.Stack {
             maxAzs: 2,
         });
 
-        this.createBastionInstance();
-
         this.createVpcEndpoints();
+
+        this.createBastionInstance();
     }
 
     private createBastionInstance() {
@@ -54,7 +56,18 @@ export class NetworkStack extends cdk.Stack {
             ec2.Port.allTraffic(),
             "Allow all traffic from within the VPC",
         );
-        new ec2.Instance(this, "bastion", {
+
+        const k6RpmAsset = new s3assets.Asset(this, "K6Rpm", {
+            path: path.join(__dirname, "assets/k6-0.50.0-1.x86_64.rpm"),
+        });
+        k6RpmAsset.grantRead(role);
+
+        const testFileAsset = new s3assets.Asset(this, "TestFile", {
+            path: path.join(__dirname, "assets/load-test.js"),
+        });
+        testFileAsset.grantRead(role);
+
+        const instance = new ec2.Instance(this, "bastion", {
             vpc: this.vpc,
             instanceType: ec2.InstanceType.of(
                 ec2.InstanceClass.T2,
@@ -67,6 +80,13 @@ export class NetworkStack extends cdk.Stack {
             role: role,
             securityGroup: internalAccessSg,
         });
+
+        instance.userData.addCommands(
+            "sudo yum update -y",
+            `aws s3 cp ${k6RpmAsset.s3ObjectUrl} /tmp/k6.rpm`,
+            `sudo aws s3 cp ${testFileAsset.s3ObjectUrl} /home/ssm-user/load-test.js`,
+            "sudo yum install -y /tmp/k6.rpm",
+        );
     }
 
     private createVpcEndpoints() {

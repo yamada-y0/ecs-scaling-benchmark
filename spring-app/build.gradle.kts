@@ -26,6 +26,7 @@ dependencies {
     testImplementation("org.testcontainers:postgresql")
     compileOnly("org.projectlombok:lombok:1.18.38")
     annotationProcessor("org.projectlombok:lombok:1.18.38")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.rest-assured:spring-mock-mvc:5.3.0")
     "developmentOnly"("org.springframework.boot:spring-boot-devtools")
