@@ -12,17 +12,17 @@ new SecurityStack(app, "SecurityStack");
 
 const network = new NetworkStack(app, "NetworkStack");
 
-const ecr = new EcrStack(app, "EcrStack", {
-    appName: "quarkus",
+const quarkusNativeEcr = new EcrStack(app, "QuarkusNativeEcrStack", {
+    appName: "quarkus-native",
 });
 
 const rds = new RdsStack(app, "RdsStack", {
     vpc: network.vpc,
 });
 
-new AppStack(app, "AppStack", {
-    appName: "quarkus",
+new AppStack(app, "QuarkusAppStack", {
+    appName: "quarkus-native",
     vpc: network.vpc,
-    repository: ecr.repository,
+    repository: quarkusNativeEcr.repository,
     secret: rds.secret,
 });

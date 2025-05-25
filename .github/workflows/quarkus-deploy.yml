@@ -48,5 +48,6 @@ jobs:
           QUARKUS_NATIVE_ENABLED: true
           QUARKUS_NATIVE_CONTAINER_BUILD: true
           QUARKUS_CONTAINER_IMAGE_PUSH: true
+          QUARKUS_CONTAINER_IMAGE_NAME: quarkus-native-app
         run: |
           ./gradlew imagePush
