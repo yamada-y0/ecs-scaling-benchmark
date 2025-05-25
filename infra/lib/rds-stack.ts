@@ -16,6 +16,15 @@ export class RdsStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props: RdsStackProps) {
         super(scope, id, props);
 
+        const sgRds = new ec2.SecurityGroup(this, "RdsSecurityGroup", {
+            vpc: props.vpc,
+            description: "Allow database access",
+            allowAllOutbound: true,
+        });
+        sgRds.addIngressRule(
+            ec2.Peer.ipv4(props.vpc.vpcCidrBlock),
+            ec2.Port.tcp(5432),
+        );
         const instance = new rds.DatabaseInstance(this, "Database", {
             vpc: props.vpc,
             vpcSubnets: {
@@ -34,6 +43,7 @@ export class RdsStack extends cdk.Stack {
             allocatedStorage: 20,
             maxAllocatedStorage: 100,
             removalPolicy: cdk.RemovalPolicy.DESTROY,
+            securityGroups: [sgRds],
         });
         this.instance = instance;
         this.secret = instance.secret!;

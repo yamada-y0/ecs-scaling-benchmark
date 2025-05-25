@@ -73,7 +73,7 @@ export class NetworkStack extends cdk.Stack {
                 ec2.InstanceClass.T2,
                 ec2.InstanceSize.MICRO,
             ),
-            machineImage: new ec2.AmazonLinuxImage(),
+            machineImage: ec2.MachineImage.latestAmazonLinux2023(),
             vpcSubnets: {
                 subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
             },
@@ -117,6 +117,10 @@ export class NetworkStack extends cdk.Stack {
         new ec2.GatewayVpcEndpoint(this, "S3Endpoint", {
             vpc: this.vpc,
             service: ec2.GatewayVpcEndpointAwsService.S3,
+        });
+        new ec2.InterfaceVpcEndpoint(this, "SecretsManagerEndpoint", {
+            vpc: this.vpc,
+            service: ec2.InterfaceVpcEndpointAwsService.SECRETS_MANAGER,
         });
     }
 }
