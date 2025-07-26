@@ -1,0 +1,121 @@
+name: Helidon Native Deploy
+on:
+  workflow_dispatch:
+
+env:
+  AWS_ACCOUNT_ID: 203367944550
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./helidon-mp-app
+
+    permissions:
+      id-token: write
+      contents: read
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up GraalVM
+        uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: '21'
+          distribution: 'graalvm-community'
+          components: 'native-image'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/GitHubActionsRole
+          aws-region: ap-northeast-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build native image
+        env:
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_NAME: postgres
+          DB_USERNAME: postgres
+          DB_PASSWORD: postgres
+        run: |
+          mvn -Pnative-image install -DskipTests
+
+      - name: Create Native Dockerfile
+        run: |
+          cat > Dockerfile.native << 'EOF'
+          FROM scratch
+          
+          # Copy the native executable
+          COPY target/helidon-mp-app /helidon-mp-app
+          
+          # Expose port
+          EXPOSE 8080
+          
+          # Set environment variables for production
+          ENV DB_HOST=localhost
+          ENV DB_PORT=5432
+          ENV DB_NAME=postgres
+          
+          # Run the native application
+          ENTRYPOINT ["/helidon-mp-app"]
+          EOF
+
+      - name: Build Docker image with native executable
+        env:
+          ECR_REGISTRY: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-1.amazonaws.com
+          ECR_REPOSITORY: helidon-native-app
+          IMAGE_TAG: latest
+        run: |
+          docker build -f Dockerfile.native -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:${{ github.sha }}
+
+      - name: Push Docker image to ECR
+        env:
+          ECR_REGISTRY: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-1.amazonaws.com
+          ECR_REPOSITORY: helidon-native-app
+          IMAGE_TAG: latest
+        run: |
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ github.sha }}
+
+      - name: Update ECS service
+        env:
+          ECR_REGISTRY: ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.ap-northeast-1.amazonaws.com
+          ECR_REPOSITORY: helidon-native-app
+        run: |
+          aws ecs update-service \
+            --cluster ecs-scaling-benchmark \
+            --service helidon-native-service \
+            --force-new-deployment \
+            --region ap-northeast-1
