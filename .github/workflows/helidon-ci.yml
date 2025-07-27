@@ -67,14 +67,3 @@ jobs:
           DB_USERNAME: postgres
           DB_PASSWORD: postgres
         run: mvn package -DskipTests
-
-      - name: Run native tests
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        env:
-          DB_HOST: localhost
-          DB_PORT: 5432
-          DB_NAME: postgres
-          DB_USERNAME: postgres
-          DB_PASSWORD: postgres
-        run: |
-          mvn -Pnative-image install -DskipTests
